@@ -10,6 +10,11 @@ class SIM970(object):
         # self.pyvisa.query_delay = 1 # Set extra delay time between write and read commands
         self.sim900port = sim900port
         # Anything else here that needs to happen on initialization
+        self.setup()
+        
+    def setup(self):
+        self.write('CEOI ON')
+        self.write('EOIX ON')
 
     def read(self):
         return self.pyvisa.read()

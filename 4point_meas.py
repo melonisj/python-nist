@@ -142,8 +142,8 @@ class runTrial(object):
 dataPoints = 10
 allData = []
 resistances = []
-voltmeter = SIM970('GPIB0::4',7)
-source1 = SIM928('GPIB0::4', 1)
+voltmeter = SIM970('GPIB0::9::INSTR',6)
+source1 = SIM928('GPIB0::9::INSTR', 1)
 uncertainty = 0
 first = True
 
