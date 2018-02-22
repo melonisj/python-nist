@@ -17,11 +17,11 @@ class ka3305p(object):
     def close(self):
         self.ser.close()
          
-    def set_current(self, current, channel):
+    def set_current(self, channel, current):
         write_string = 'ISET' + str(channel) + ':' + str(current)
         self.ser.write(write_string.encode())
         
-    def set_voltage(self, voltage, channel):
+    def set_voltage(self, channel, voltage):
         write_string = 'VSET' + str(channel) + ':' + str(voltage)
         self.ser.write(write_string.encode())
         
@@ -63,14 +63,15 @@ class ka3305p(object):
     def tracking_mode(self, mode):
         if(mode == 0): #independant mode
             self.ser.write(b'TRACK0')
-        elif(mode == 1):#ser mode
+        elif(mode == 1):#series mode (channel 1 and 2 in series) ch2=master, ch1=slave
             self.ser.write(b'TRACK1')
-        elif(mode == 2):#para mode
+        elif(mode == 2):#parallel mode (channel 1 and 2 in parallel) ch2=master, ch1=slave
             self.ser.write(b'TRACK2')
             
     def identify(self):
-        self.ser.write(b'*IDN?')
-        return(self.ser.read(30))
+        write_string = '*IDN?'
+        self.ser.write(write_string.encode())
+        return(self.ser.read(30).decode('UTF-8'))
         
         #TODO: get rid of the 'b' at the beginning of the returned strings
     def status(self):
@@ -78,21 +79,21 @@ class ka3305p(object):
         byte = self.ser.read()
         status_object = {'channel1':'', 'channel2':'', 'output':False}
         print(byte)
-        if(byte == '\x00'):
+        if(byte == b'\x00'):
             status_object = {'channel1':'CC', 'channel2':'CC', 'output':False}
-        elif (byte == '\x01'):
+        elif (byte == b'\x01'):
             status_object = {'channel1':'CV', 'channel2':'CC', 'output':False}
-        elif (byte == '\x02'):
+        elif (byte == b'\x02'):
             status_object = {'channel1':'CC', 'channel2':'CV', 'output':False} 
-        elif (byte == '\x03'):        
+        elif (byte == b'\x03'):        
             status_object = {'channel1':'CV', 'channel2':'CV', 'output':False}
-        elif (byte == '\x40'):
+        elif (byte == b'\xc0'):
             status_object = {'channel1':'CC', 'channel2':'CC', 'output':True}
-        elif (byte == '\x41'):
+        elif (byte == b'\xc1'):
             status_object = {'channel1':'CV', 'channel2':'CC', 'output':True}
-        elif (byte == '\x42'):
+        elif (byte == b'\xc2'):
             status_object = {'channel1':'CC', 'channel2':'CV', 'output':True}
-        elif (byte == '\x43'):
+        elif (byte == b'\xc3'):
             status_object = {'channel1':'CV', 'channel2':'CV', 'output':True}
         return status_object
             
@@ -121,4 +122,10 @@ class ka3305p(object):
         write_string = 'VSET' + str(channel) + '?'
         self.ser.write(write_string.encode())
         return float(self.ser.read(5))
+    
+    def lock_control_panel(self, lock):
+        if(lock):
+            self.ser.write(b'LOCK1')
+        else:
+            self.ser.write(b'LOCK0')
         
