@@ -9,7 +9,7 @@ class SIM970(object):
         self.pyvisa.timeout = 5000 # Set response timeout (in milliseconds)
         # self.pyvisa.query_delay = 1 # Set extra delay time between write and read commands
         self.sim900port = sim900port
-        # Anything else here that needs to happen on initialization
+#         Anything else here that needs to happen on initialization
         self.setup()
         
     def setup(self):
