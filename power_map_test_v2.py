@@ -133,13 +133,15 @@ class power_meas(object):
         plt.title('Heat Map')
         plt.show()
         
-    def test_source(self, source, voltage):
+    def test_source(self, voltage):
         self.source.set_voltage(channel=1, voltage=voltage)
+        time.sleep(0.01)
+        self.source.set_voltage(channel=2, voltage=voltage)
         
 if(__name__ == "__main__"):
     source = ka3305p('COM8')
     voltmeter = SIM970('GPIB0::4',7)
     heat_map = power_meas(voltage_source = source, voltmeter = voltmeter, series_resistance = 10, csv_file_name = "heat_map_data.csv")
-    heat_map.run_sample(1, 0.2)
+    heat_map.test_source(7.32)
     heat_map.create_graph()
     source.close()
