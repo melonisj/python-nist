@@ -42,6 +42,9 @@ class power_meas(object):
         self.temps_40K_array = []
         self.temps_4K_array = []
         
+        self.powers_40K_set = []
+        self.powers_4K_set = []
+        
     def run_sample(self, power_40K, power_4K):
         #Setup
         set_voltage_40K = 1.2*math.sqrt(50 * power_40K)
@@ -57,15 +60,13 @@ class power_meas(object):
         power_resistor_voltage_4K = []
         temp_4K = []
 
-        print(self.source.identify())
-        self.source.set_voltage(channel=1, voltage=float(set_voltage_40K))
-        time.sleep(1)
-        self.source.set_voltage(channel=2, voltage=float(set_voltage_4K))
+        self.source.set_voltage(channel=1, voltage=round(set_voltage_40K,2))
+#        time.sleep(1)
+        self.source.set_voltage(channel=2, voltage=round(set_voltage_4K,2))
         
-        time.sleep(1)
+#        time.sleep(1)
         
-        print(set_voltage_40K)
-        print(set_voltage_4K)
+
         self.source.set_output(on=True)
         #Run a few samples and average each
         for x in range(3):
@@ -81,7 +82,7 @@ class power_meas(object):
             power_resistor_voltage_4K.append(voltmeter.read_voltage(channel = 4))
             series_current_4K.append((set_voltage_4K - series_voltage_4K[x]) / self.series_resistance)
         #        delivered_power_4K.append(series_current_4K*power_resistor_voltage_4K)
-            
+#            time.sleep(5)
             all_temps = client.client('132.163.53.67',50326,'getall').decode('ascii').split(',')
             temp_4K.append(float(all_temps[5]))
             temp_40K.append(float(all_temps[6]))
@@ -107,6 +108,8 @@ class power_meas(object):
         self.powers_4K_array.append(avg_power_4K)
         self.temps_40K_array.append(avg_temp_40K)
         self.temps_4K_array.append(avg_temp_4K)
+        self.powers_40K_set.append(power_40K)
+        self.powers_4K_set.append(power_4K)
         
         
         #Save all data to CSV
@@ -126,12 +129,32 @@ class power_meas(object):
             writer = csv.writer(output, lineterminator='\n')
             writer.writerow(data)
             
-    def create_graph(self):
-        plt.plot(self.temps_40K_array, self.temps_4K_array, '-ro')
-        plt.xlabel('Temp in 40K Stage')
-        plt.ylabel('Temp in 4K Stage')
-        plt.title('Heat Map')
-        plt.show()
+    def create_graph(self, rows, cols):
+        print(rows, cols)
+        fig = plt.figure()
+        power_string = []
+#        width_4K = len(self.powers_4K_array)
+#        print(width_4K)
+#        powers_40K_overlay = []
+#        powers_4K_overlay = []
+#        for i, x in enumerate(self.powers_4K_array):
+#            powers_40K_overlay.append(self.temps_40K_array[rows*i%(width_4K-1)])
+#            powers_4K_overlay.append(self.temps_4K_array[rows*i%(width_4K-1)])
+#        
+        for i, x in enumerate(self.powers_40K_array):
+            power_string.append(str(round(self.powers_4K_set[i],2)) + ", " + str(round(self.powers_40K_set[i],2)))
+        ax1 = fig.add_subplot(111)
+#        ax2 = fig.add_subplot(111)
+        ax1.plot(self.temps_40K_array, self.temps_4K_array, '-ro')
+        ax1.set_xlabel('Temp in 40K Stage')
+        ax1.set_ylabel('Temp in 4K Stage')
+        ax1.set_title('Heat Map')
+        
+        for i, txt in enumerate(power_string):
+            ax1.annotate(txt, (self.temps_40K_array[i],self.temps_4K_array[i]))
+#        ax2.plot(powers_40K_overlay, powers_4K_overlay, '-b')
+
+        fig.show()
         
     def test_source(self, voltage):
         self.source.set_voltage(channel=1, voltage=voltage)
@@ -142,6 +165,12 @@ if(__name__ == "__main__"):
     source = ka3305p('COM8')
     voltmeter = SIM970('GPIB0::4',7)
     heat_map = power_meas(voltage_source = source, voltmeter = voltmeter, series_resistance = 10, csv_file_name = "heat_map_data.csv")
-    heat_map.test_source(7.32)
-    heat_map.create_graph()
+    powers_in_4K = [0.25,0.5]
+    powers_in_40K = [0.25,0.5]
+    
+    for power40 in powers_in_40K:
+        for power4 in powers_in_4K:
+            heat_map.run_sample(power40, power4)
+#    heat_map.test_source(7.32)
+    heat_map.create_graph(rows = len(powers_in_40K), cols = len(powers_in_4K))
     source.close()
