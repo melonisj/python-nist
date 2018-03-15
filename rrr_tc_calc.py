@@ -21,17 +21,18 @@ time = [[],[],[],[],[],[]]
 temp = [[],[],[],[],[],[]]
 res = [[],[],[],[],[],[]]
 count = 0
-
+channels_allowed = [1,2,3,4,5,6]
 
 #%% read data from CSV file
-with open("test-channel-measurements.csv", "r", newline='') as output:
+with open("2018_03_13_16_39_56.csv", "r", newline='') as output:
             reader = csv.reader(output,delimiter=',')
             for row in reader:
                 if '#' not in row[0]:
-                    time[int(row[1])-1].append(float(row[0]))
-                    temp[int(row[1])-1].append(float(row[2]))
-                    res[int(row[1])-1].append(float(row[3]))
-                    count = count + 1
+                    if(float(row[3]) < 2000 and float(row[3]) > -2000):
+                        time[int(row[1])-1].append(float(row[0]))
+                        temp[int(row[1])-1].append(float(row[2]))
+                        res[int(row[1])-1].append(float(row[3]))
+                        count = count + 1
                     
 
 #%% Initial Plot
@@ -41,7 +42,8 @@ colors = cycle(["aqua", "black", "blue", "fuchsia", "green", "lime", "maroon", "
 fig = plt.figure()
 ax = fig.add_subplot(111)
 for i in range(6):
-    ax.plot(time[i],res[i], label="Ch " + str(i), color = next(colors))
+    if((i+1) in channels_allowed):
+        ax.plot(temp[i],res[i], label="Ch " + str(i+1), color = next(colors))
 ax.legend(loc="best")
 ax.set_xlabel("Time(s)", fontsize=12)
 ax.set_ylabel("Resistance(Ω)", fontsize=12)
@@ -50,10 +52,10 @@ ax.set_title("Resistance over time", fontsize = 18)
 #%% Calculate RRR
 
 
-
-for x in range(6):
-    while(val in temp[x] > 280):
-        
+#
+#for x in range(6):
+#    while(val in temp[x] > 280):
+#        
 
 
 

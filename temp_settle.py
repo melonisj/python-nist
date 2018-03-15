@@ -37,6 +37,7 @@ set_voltage = 1.2*math.sqrt(50 * power_wanted)
 time.sleep(2)
 source.set_voltage(channel=1, voltage=round(set_voltage,2))
 time.sleep(2)
+
 while (cur_time < 0):
     all_temps = client.client('132.163.53.67',50326,'getall').decode('ascii').split(',')
     temp_4K.append(float(all_temps[5]))
@@ -54,7 +55,7 @@ while (cur_time < 420):
     time_array.append(cur_time)
     
     series_v_read = voltmeter.read_voltage(channel = 1)
-    r_voltage = voltmeter.read_voltage(channel = 4)
+    r_voltage = voltmeter.read_voltage(channel = 2)
     s_current = (set_voltage - series_v_read) / 10
     series_voltage_40K.append(series_v_read)
     power_resistor_voltage_40K.append(r_voltage)
