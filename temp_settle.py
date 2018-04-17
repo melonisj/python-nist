@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import client
 import math
 import numpy as np
+from tqdm import tqdm
 
 
 source = ka3305p('COM8')
@@ -38,16 +39,21 @@ time.sleep(2)
 source.set_voltage(channel=1, voltage=round(set_voltage,2))
 time.sleep(2)
 
+print("Begin Data collection no heat")
+pbar = tqdm(total=10/0.46)
 while (cur_time < 0):
     all_temps = client.client('132.163.53.67',50326,'getall').decode('ascii').split(',')
     temp_4K.append(float(all_temps[5]))
     temp_40K.append(float(all_temps[6]))
     cur_time += 0.46
     time_array.append(cur_time)
+    pbar.update(0.46)
+    
     
 source.set_output(on=True)
-
-while (cur_time < 420):
+print("\n\nBegin heating Loop")
+pbar = tqdm(total=600)
+while (cur_time < 600):
     all_temps = client.client('132.163.53.67',50326,'getall').decode('ascii').split(',')
     temp_4K.append(float(all_temps[5]))
     temp_40K.append(float(all_temps[6]))
@@ -61,6 +67,7 @@ while (cur_time < 420):
     power_resistor_voltage_40K.append(r_voltage)
     series_current_40K.append(s_current)
     avg_powers.append(s_current * r_voltage)
+    pbar.update(0.7)
     
 source.set_output(on=False)
 
@@ -71,7 +78,7 @@ ax2 = ax1.twinx()
 ax1.plot(time_array, temp_4K, '-ro')
 ax1.set_xlabel("Time (s)")
 ax1.set_ylabel("Temperature in 4K(K)",color='r')
-ax1.set_title("Temperature Applied in 40K")
+ax1.set_title("Temperature Applied in 4K")
 ax2.plot(time_array, temp_40K, '-bo')
 ax2.set_ylabel("Temperature in 40K(K)", color='b')
 ax1.legend(loc="best")

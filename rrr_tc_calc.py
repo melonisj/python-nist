@@ -9,6 +9,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import cycle
+import os
 
 #%% setup
 ch1 = []
@@ -22,9 +23,13 @@ temp = [[],[],[],[],[],[]]
 res = [[],[],[],[],[],[]]
 count = 0
 channels_allowed = [1,2,3,4,5,6]
+full_path = os.path.expanduser('~\Documents\Tc Check Data\Original\RampT Test\\2018_03_16_17_22_16.csv')
+#full_path = os.path.expanduser('~\Documents\Tc Check Data\Modified\Full Cooldown\\2018_03_15_10_50_53.csv')
+#full_path = os.path.expanduser('~\Documents\Tc Check Data\Original\Full Cooldown\\2018_02_23_13_37_51.csv')
+#
 
 #%% read data from CSV file
-with open("2018_03_13_16_39_56.csv", "r", newline='') as output:
+with open(full_path, "r", newline='') as output:
             reader = csv.reader(output,delimiter=',')
             for row in reader:
                 if '#' not in row[0]:
@@ -45,7 +50,7 @@ for i in range(6):
     if((i+1) in channels_allowed):
         ax.plot(temp[i],res[i], label="Ch " + str(i+1), color = next(colors))
 ax.legend(loc="best")
-ax.set_xlabel("Time(s)", fontsize=12)
+ax.set_xlabel("Temp(K)", fontsize=12)
 ax.set_ylabel("Resistance(Ω)", fontsize=12)
 ax.set_title("Resistance over time", fontsize = 18)
 
