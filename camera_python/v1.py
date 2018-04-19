@@ -54,19 +54,20 @@ def f_camera_photonics(filename, varargin = 0):
     img2 = cv2.imread(filename,-1)
     
     ## WARNING: DO NOT ATTEMPT TO SHOW THE 16 bit file because it will probably crash python 
-    
-    r = cv2.selectROI(windowName="ROI Selector", img=img)
+    print("Select a region of pixels which you want to be blacked out. Every pixel inside this box will be set to black. When you see the white box hit enter or space.")
+    r = cv2.selectROI(windowName="Black out Region Selector", img=img)
     img = make_pixels_black(img, r)
     img2 = make_pixels_black(img2, r)
-    cv2.destroyWindow("ROI Selector")
+    cv2.destroyWindow("Black out Region Selector")
     
-    mean_r = cv2.selectROI(windowName="Mean Selector", img=img)
+    print("Select a region of pixels which will be used to calculate the mean value of the image. This region should not contain the black region above, or any of the bright spots on the image. When you see the white box, hit enter or space.")
+    mean_r = cv2.selectROI(windowName="Mean Pixel Value Selector", img=img)
     mean_value = calculate_pixel_mean(img, mean_r)
     mean_value2 = calculate_pixel_mean(img2, mean_r)
     
     #print(mean_value)
     #print(mean_value2)
-    cv2.destroyWindow("Mean Selector")
+    cv2.destroyWindow("Mean Pixel Value Selector")
 #    cv2.imshow('image',img)
     
 #    cv2.waitKey(0)
@@ -201,6 +202,7 @@ def f_camera_photonics(filename, varargin = 0):
 if(__name__ == "__main__"):
     filename = "smb_tminput_shortsp_shortrt_tmout.tiff"
     pout = f_camera_photonics(filename, varargin = 0)
+    print(pout)
     
     
     
