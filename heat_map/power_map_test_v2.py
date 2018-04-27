@@ -46,7 +46,7 @@ class power_meas(object):
         self.powers_40K_set = []
         self.powers_4K_set = []
         
-    def run_sample(self, power_40K, power_4K,new_40K):
+    def run_sample(self, power_40K, power_4K,new_40K , settling_time_4K = 300, settling_time_40K = 1200):
         #Setup
         set_voltage_40K = 1.2*math.sqrt(50 * power_40K)
         set_voltage_4K = 1.2*math.sqrt(50 * power_4K)
@@ -71,11 +71,11 @@ class power_meas(object):
         #Give it time to settle
         if(new_40K):
             print("\nTemperature Settling...please wait")
-            for wait_var in range(1200):
+            for wait_var in range(settling_time_40K): #wait time in 40K stage 
                 time.sleep(1)
         else:
             print("\nTemperature Settling...please wait")
-            for wait_var in range(300):
+            for wait_var in range(settling_time_4K):
                 time.sleep(1)
 
 

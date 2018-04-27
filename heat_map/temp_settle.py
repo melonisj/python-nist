@@ -31,7 +31,7 @@ power_resistor_voltage_40K = []
 series_current_40K = []
 avg_powers = []
 time_array = []
-cur_time = -10
+cur_time = -10 #waits this long before turning on the heater. -10 means it waits 10 seconds and then turns on the heater
 power_wanted = 2
 set_voltage = 1.2*math.sqrt(50 * power_wanted)
 
@@ -79,7 +79,7 @@ ax2 = ax1.twinx()
 ax1.plot(time_array, temp_4K, '-ro')
 ax1.set_xlabel("Time (s)")
 ax1.set_ylabel("Temperature in 40K(K)",color='r')
-ax1.set_title("Temperature Applied in 4K")
+ax1.set_title("Temperature Applied in 40K")
 ax2.plot(time_array, temp_40K, '-bo')
 ax2.set_ylabel("Temperature in 40K(K)", color='b')
 ax1.legend(loc="best")
