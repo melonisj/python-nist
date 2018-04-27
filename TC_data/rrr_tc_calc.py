@@ -23,8 +23,8 @@ temp = [[],[],[],[],[],[]]
 res = [[],[],[],[],[],[]]
 count = 0
 channels_allowed = [1,2,3,4,5,6]
-full_path = os.path.expanduser('~\Documents\Tc Check Data\Original\RampT Test\\2018_03_16_17_22_16.csv')
-#full_path = os.path.expanduser('~\Documents\Tc Check Data\Modified\Full Cooldown\\2018_03_15_10_50_53.csv')
+full_path = os.path.expanduser('H:\Documents\Tc Measurement Data\Full Cooldown\Raw Data\\2018_04_10_11_31_49.csv')
+full_path = os.path.expanduser('H:\Documents\Tc Measurement Data\RampT\Raw Data\\2018_04_12_12_42_26.csv')
 #full_path = os.path.expanduser('~\Documents\Tc Check Data\Original\Full Cooldown\\2018_02_23_13_37_51.csv')
 #
 
