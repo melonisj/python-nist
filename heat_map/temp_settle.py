@@ -14,6 +14,10 @@ import math
 import numpy as np
 from tqdm import tqdm
 
+
+
+# SEE THIS LINK FOR USEFUL INSTRUCTIONS
+# https://qittlab-nuc-01.campus.nist.gov/wordpress/wp-admin/post.php?post=5878&action=edit
 #%% INITIALIZATION AND SETUP
 
 #Create objects for the voltage source and voltmeter

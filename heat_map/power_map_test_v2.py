@@ -23,6 +23,9 @@ from tqdm import tqdm
 #
 #%%
 
+# SEE THIS LINK FOR USEFUL INSRUCTIONS
+#https://qittlab-nuc-01.campus.nist.gov/wordpress/wp-admin/post.php?post=5878&action=edit
+
 class power_meas(object):
     """
         This function allows heat map measurement to be made in Adam's Cryostat. 
