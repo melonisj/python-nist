@@ -45,7 +45,7 @@ source.set_output(on=False)
 
 pre_heat_time = 10 #waits this long before turning on the heater. 10 means it waits 10 seconds and then turns on the heater
 power_wanted = 2 #this is the watts delivered to the heater
-run_time = 4000 #this is the number of seconds the test will run for (note, it will go this long to heat, and this long to cool) total test = 2* runtime
+run_time = 10000 #this is the number of seconds the test will run for (note, it will go this long to heat, and this long to cool) total test = 2* runtime
 voltage_source_channel = 1 # this is the channel on the voltmeter you plugged the heater resistor into
 voltmeter_series_voltage_channel = 1 # this is the voltmeter channel connected to the series resistor (NOT TO THE CRYOSTAT)
 voltmeter_resistor_voltage_channel = 2 # this is the voltmeter channel connected to the resistor in the cryostat
