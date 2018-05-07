@@ -107,16 +107,16 @@ class power_meas(object):
             count = len(list(reader))
             
         now = datetime.datetime.now()
-        now.strftime("%Y-%m-%d %H:%M")
+        datenow = now.strftime("%Y-%m-%d %H:%M")
         
         #%%
-        data = [count,series_I_40K, series_V_40K, p_resistor_V_40K, power_40K, temp_40K, series_I_4K, series_V_4K, p_resistor_V_4K, power_4K, temp_4K,now]
+        data = [count,series_I_40K, series_V_40K, p_resistor_V_40K, power_40K, temp_40K, series_I_4K, series_V_4K, p_resistor_V_4K, power_4K, temp_4K,datenow]
         with open(self.csv_file_name, "a", newline='') as output:
             writer = csv.writer(output, lineterminator='\n')
             writer.writerow(data)
     
     
-    def graph_helper(seq, num):
+    def graph_helper(self, seq, num):
         """
         This function just reorders some of the data for the graph so that the 
         heat map graph has an actaul mesh look to it instead of just a bunch 
@@ -124,15 +124,15 @@ class power_meas(object):
         
         Nothing should need to be changed in here to run the file with your settings.
         """
-            avg = len(seq) / float(num)
-            out = []
-            last = 0.0
-        
-            while last < len(seq):
-                out.append(seq[int(last):int(last + avg)])
-                last += avg
-        
-            return out
+        avg = len(seq) / float(num)
+        out = []
+        last = 0.0
+    
+        while last < len(seq):
+            out.append(seq[int(last):int(last + avg)])
+            last += avg
+    
+        return out
             
     def make_graph(self,rows,cols):
         """
@@ -173,10 +173,13 @@ class power_meas(object):
         for i, txt in enumerate(power_string):
             ax1.annotate(txt, (self.temps_40K_array[i],self.temps_4K_array[i]))
         fig.show()
-        plt.savefig('heatmap_test3.png')
+        now = datetime.datetime.now()
+        datenowstring = now.strftime("%Y-%m-%d %H:%M")
+        string = "heatmap" + datenowstring + ".png"
+        plt.savefig(string)
         
             
-    def run_sample(self, power_40K, power_4K,new_40K , settling_time_4K = 300, settling_time_40K = 1200):
+    def run_sample(self, power_40K, power_4K,new_40K , settling_time_4K = 500, settling_time_40K = 5000):
         """
         THIS IS WHERE THE TEST IS ACTAULLY RUN!
         This function uses some of the helper functions above to create a heat 
@@ -200,15 +203,19 @@ class power_meas(object):
         series_voltage_4K = []
         power_resistor_voltage_4K = []
         temp_4K = []
+        time.sleep(3)
 
         # Set the voltage source to the given voltage to get the requested power
+        source.clear_serial_buffer()
         self.source.set_voltage(channel=1, voltage=round(set_voltage_40K,2))
-        time.sleep(1)
+        time.sleep(3)
+        source.clear_serial_buffer()
         self.source.set_voltage(channel=2, voltage=round(set_voltage_4K,2))
         time.sleep(3)
+        source.clear_serial_buffer()
         self.source.set_output(on=True)
-
-#        time.sleep(1)
+        time.sleep(3)
+        
         #Give it time for the temperature to settle
         if(new_40K):
             print("\nTemperature Settling...please wait")
@@ -280,15 +287,17 @@ if(__name__ == "__main__"):
     # CHANGE THESE VALUES TO GET WHAT YOU WANT MEASURED. MAX IS ~12.5 W
     powers_in_4K = [0,0.5,1,2,3,4,5,6]
     powers_in_40K = [0,0.5,1,2,3,4,5,6]
-    
     # Step 3: create a loop to run through those arrays and take a sample for each one
-    for i in tqdm(range(len(powers_in_40K)),desc="40 K Temp Status"):
-        # Each time the 40K value is changed we must wait a long time. Set new_40K to true when this happens
-        new_40K = True
-        for j in tqdm(range(len(powers_in_4K)),desc="4 K Temp Status"):
-            print("\n\n===================================\nHeating 40K with ", powers_in_40K[i], " W\nHeating 4K with  ",powers_in_4K[j]," W\n===================================")
-            heat_map.run_sample(powers_in_40K[i], powers_in_4K[j], new_40K)
-            new_40K = False
+    for k in range(0,3):
+        for i in tqdm(range(len(powers_in_40K)),desc="40 K Temp Status"):
+            # Each time the 40K value is changed we must wait a long time. Set new_40K to true when this happens
+            new_40K = True
+            for j in tqdm(range(len(powers_in_4K)),desc="4 K Temp Status"):
+                print("\n\n===================================\nHeating 40K with ", powers_in_40K[i], " W\nHeating 4K with  ",powers_in_4K[j]," W\n===================================")
+                heat_map.run_sample(powers_in_40K[i], powers_in_4K[j], new_40K)
+                new_40K = False
+        if(k!=4):
+            time.sleep(3600)
      
 #    heat_map.test_source(7.32)
     # Step 4: Make a graph

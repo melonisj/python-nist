@@ -146,4 +146,10 @@ class ka3305p(object):
             self.ser.write(b'LOCK1')
         else:
             self.ser.write(b'LOCK0')
+
+    def clear_serial_buffer(self):
+        self.ser.flush()
+        self.ser.reset_input_buffer()
+        self.ser.reset_output_buffer()
+        time.sleep(3)
         

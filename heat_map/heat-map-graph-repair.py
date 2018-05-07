@@ -24,32 +24,70 @@ power_4K_2 = []
 power_40K_2 = []
 power_4K_set_2 = []
 power_40K_set_2 = []
+
+temp_4K_3 = []
+temp_40K_3 = []
+power_4K_3 = []
+power_40K_3 = []
+
+temp_4K_4 = []
+temp_40K_4 = []
+power_4K_4 = []
+power_40K_4 = []
 with open(filename, "r", newline='') as output:
     reader = csv.reader(output,delimiter=',')
     for row in reader:
-        if(row_count < 65 and row_count > 0):
-            temp_4K_2.append(float(row[10]))
-            temp_40K_2.append(float(row[5]))
-            power_4K_2.append(float(row[9]))
-            power_40K_2.append(float(row[4]))
-        if(row_count > 68):
+        if(row_count < 65 and row_count > 0): #heatmap_test3a
+            temp_4K_4.append(float(row[10]))
+            temp_40K_4.append(float(row[5]))
+            power_4K_4.append(float(row[9]))
+            power_40K_4.append(float(row[4]))
+        if(row_count > 68 and row_count < 133): #heatmap_test4
             temp_4K.append(float(row[10]))
             temp_40K.append(float(row[5]))
             power_4K.append(float(row[9]))
             power_40K.append(float(row[4]))
+        if(row_count > 132 and row_count < 197):
+            temp_4K_2.append(float(row[10]))
+            temp_40K_2.append(float(row[5]))
+            power_4K_2.append(float(row[9]))
+            power_40K_2.append(float(row[4]))
+        if(row_count > 196 and row_count < 261):
+            temp_4K_3.append(float(row[10]))
+            temp_40K_3.append(float(row[5]))
+            power_4K_3.append(float(row[9]))
+            power_40K_3.append(float(row[4]))
+#        if(row_count > 260 and row_count < 325):
+#            temp_4K_2.append(float(row[10]))
+#            temp_40K_2.append(float(row[5]))
+#            power_4K_2.append(float(row[9]))
+#            power_40K_2.append(float(row[4]))
+#        if(row_count > 324 and row_count < 389):
+#            temp_4K.append(float(row[10]))
+#            temp_40K.append(float(row[5]))
+#            power_4K.append(float(row[9]))
+#            power_40K.append(float(row[4]))
+#        if(row_count > 388 and row_count < 453):
+#            temp_4K.append(float(row[10]))
+#            temp_40K.append(float(row[5]))
+#            power_4K.append(float(row[9]))
+#            power_40K.append(float(row[4]))
         row_count = row_count +1      
             
 
 
-temp_4K[36] = temp_4K_2[36]
-temp_4K[31] = temp_4K_2[31]
+temp_4K[36] = temp_4K[28]
+temp_4K[62] = temp_4K_2[62]
 temp_4K[14] = temp_4K_2[14]
-temp_4K[47] = temp_4K_2[47]
-
-temp_40K[36] = temp_40K_2[36]
-temp_40K[31] = temp_40K_2[31]
+temp_4K[31] = temp_4K_2[31]
+temp_4K[47] = temp_4K_4[47]
+#
+temp_40K[62] = temp_40K_2[62]
 temp_40K[14] = temp_40K_2[14]
-temp_40K[47] = temp_40K_2[47]
+temp_40K[31] = temp_40K_2[31]
+#temp_40K[47] = temp_40K_4[47]
+#temp_40K[46] = temp_40K_2[46]
+
 #temp_40K = temp_40K_2
 #power_4K = power_4K_2
 #power_40K = power_40K_2
@@ -110,7 +148,8 @@ def better_graph(rows, cols):
     for i, x in enumerate(power_40K):
             power_string.append(str(round(abs(power_4K[i]),2)) + ", " + str(round(abs(power_40K[i]),2)))
     for i, txt in enumerate(power_string):
-        ax1.annotate(txt, (temp_40K[i],temp_4K[i]), fontsize = 7)
+        ax1.annotate(txt, (temp_40K[i],temp_4K[i]), fontsize = 11)
     fig.show()
+    plt.savefig("reformed.png")
     
 better_graph(rows = 8, cols = 8)

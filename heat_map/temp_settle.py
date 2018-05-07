@@ -13,6 +13,7 @@ import client
 import math
 import numpy as np
 from tqdm import tqdm
+import datetime
 
 
 
@@ -42,9 +43,9 @@ source.set_output(on=False)
 #       YOU CAN ALSO CHANGE THE VALUE OF THE SERIES RESISTOR ON YOUR CIRCUIT WITH series_resistance
 #******************************************************************************
 
-cur_time = -10 #waits this long before turning on the heater. -10 means it waits 10 seconds and then turns on the heater
+pre_heat_time = 10 #waits this long before turning on the heater. 10 means it waits 10 seconds and then turns on the heater
 power_wanted = 2 #this is the watts delivered to the heater
-run_time = 6600 #this is the number of seconds the test will run for
+run_time = 4000 #this is the number of seconds the test will run for (note, it will go this long to heat, and this long to cool) total test = 2* runtime
 voltage_source_channel = 1 # this is the channel on the voltmeter you plugged the heater resistor into
 voltmeter_series_voltage_channel = 1 # this is the voltmeter channel connected to the series resistor (NOT TO THE CRYOSTAT)
 voltmeter_resistor_voltage_channel = 2 # this is the voltmeter channel connected to the resistor in the cryostat
@@ -59,6 +60,7 @@ series_current_40K = []
 avg_powers = []
 time_array = []
 set_voltage = 1.2*math.sqrt(50 * power_wanted)
+cur_time = 0
 
 #%% TURN ON THE VOLTAGE SOURCE -> NOTHING NEEDS TO BE CHANGED IN HERE FOR YOUR SETTINGS
 time.sleep(2)
@@ -68,43 +70,73 @@ time.sleep(2)
 #%% BEGIN MEASURING TEMP DATA BEFORE THE HEATER TURNS ON -> NOTHING NEEDS TO BE CHANGED IN HERE FOR YOUR SETTINGS
 
 print("Begin Data collection no heat")
+start_time = time.time()
 # Make a status bar for the user to follow
-pbar = tqdm(total=(-1*cur_time)/0.46)
-while (cur_time < 0):
-    all_temps = client.client('132.163.53.67',50326,'getall').decode('ascii').split(',')
-    temp_4K.append(float(all_temps[5]))
-    temp_40K.append(float(all_temps[6]))
-    cur_time += 0.46
-    time_array.append(cur_time)
-    pbar.update(0.46)
+with tqdm(total=pre_heat_time, unit="s") as pbar:
+    cur_time = time.time()
+    while (cur_time < start_time + pre_heat_time):
+        all_temps = client.client('132.163.53.67',50326,'getall').decode('ascii').split(',')
+        temp_4K.append(float(all_temps[5]))
+        temp_40K.append(float(all_temps[6]))
+        time_array.append(cur_time - start_time)
+        prev_time = cur_time
+        cur_time = time.time()
+        pbar.update(cur_time - prev_time)
+
+
     
 #%% BEGIN MEAUREING TEMP DATA AFTER THE HEATER TURNS ON -> NOTHING NEEDS TO BE CHANGED IN HERE FOR YOUR SETTINGS
 source.set_output(on=True)
 print("\n\nBegin heating Loop")
-pbar = tqdm(total=run_time) # CHANGE THIS TO ADJUST TOTAL MEASUREMENT TIME
-while (cur_time < run_time):
-    all_temps = client.client('132.163.53.67',50326,'getall').decode('ascii').split(',')
-    temp_4K.append(float(all_temps[5]))
-    temp_40K.append(float(all_temps[6]))
-    #this is incremented due to the average run time of each of these loops
-    cur_time += 0.7
-    time_array.append(cur_time)
-    series_v_read = voltmeter.read_voltage(channel = voltmeter_series_voltage_channel)
-    r_voltage = voltmeter.read_voltage(channel = voltmeter_resistor_voltage_channel)
-    s_current = (set_voltage - series_v_read) / series_resistance
-    series_voltage_40K.append(series_v_read)
-    power_resistor_voltage_40K.append(r_voltage)
-    series_current_40K.append(s_current)
-    avg_powers.append(s_current * r_voltage)
-    pbar.update(0.7)
+with tqdm(total=run_time, unit="s") as pbar: # CHANGE THIS TO ADJUST TOTAL MEASUREMENT TIME
+    cur_time = time.time()
+    while (cur_time < start_time + pre_heat_time + run_time):
+        all_temps = client.client('132.163.53.67',50326,'getall').decode('ascii').split(',')
+        temp_4K.append(float(all_temps[5]))
+        temp_40K.append(float(all_temps[6]))
+        #this is incremented due to the average run time of each of these loops
+        time_array.append(cur_time - start_time)
+        series_v_read = voltmeter.read_voltage(channel = voltmeter_series_voltage_channel)
+        r_voltage = voltmeter.read_voltage(channel = voltmeter_resistor_voltage_channel)
+        s_current = (set_voltage - series_v_read) / series_resistance
+        series_voltage_40K.append(series_v_read)
+        power_resistor_voltage_40K.append(r_voltage)
+        series_current_40K.append(s_current)
+        avg_powers.append(s_current * r_voltage)
+        prev_time = cur_time
+        cur_time = time.time()
+        pbar.update(cur_time - prev_time)
+
     
 source.set_output(on=False)
+off_time = time.time() - start_time
+
+# Now run the cooling loop
+print("\n\nBegin Cooling Loop")
+with tqdm(total=run_time, unit="s") as pbar: # CHANGE THIS TO ADJUST TOTAL MEASUREMENT TIME
+    cur_time = time.time()
+    while (cur_time < off_time + start_time + run_time):
+        all_temps = client.client('132.163.53.67',50326,'getall').decode('ascii').split(',')
+        temp_4K.append(float(all_temps[5]))
+        temp_40K.append(float(all_temps[6]))
+        #this is incremented due to the average run time of each of these loops
+        time_array.append(cur_time - start_time)
+        series_v_read = voltmeter.read_voltage(channel = voltmeter_series_voltage_channel)
+        r_voltage = voltmeter.read_voltage(channel = voltmeter_resistor_voltage_channel)
+        s_current = (set_voltage - series_v_read) / series_resistance
+        series_voltage_40K.append(series_v_read)
+        power_resistor_voltage_40K.append(r_voltage)
+        series_current_40K.append(s_current)
+        avg_powers.append(s_current * r_voltage)
+        prev_time = cur_time
+        cur_time = time.time()
+        pbar.update(cur_time - prev_time)
 
 #%% CREATE THE GRAPH WHICH WILL SHOW THE TEMPEREATURE DATA vs TIME -> MAKE SURE TO CHANGE THE GRAPH LABEL DEPENDING ON WHERE THE POWER WAS APPLIED
 #*****************************************************************************
 # NOTE:
-#       CHANGE THE Y AND X LABELS TO CORRESPOND TO WHERE THE POWER WAS APPLIED
-#       THE YLABEL, XLABEL, AND TITLE SHOULD ALL MATCH
+#       CHANGE THE TITLE TO CORRESPOND TO WHERE THE POWER WAS APPLIED
+#       DONT CHANGE THE Y LABELS
 
 #*****************************************************************************
 
@@ -114,12 +146,17 @@ ax1 = fig.add_subplot(111)
 ax2 = ax1.twinx()
 ax1.plot(time_array, temp_4K, '-ro')
 ax1.set_xlabel("Time (s)")
-ax1.set_ylabel("Temperature in 40K(K)",color='r')
+ax1.set_ylabel("Temperature in 4K(K)",color='r')
 ax1.set_title("Temperature Applied in 40K")
 ax2.plot(time_array, temp_40K, '-bo')
+plt.axvline(x = off_time, color='k', linestyle='--')
+plt.text(off_time+1, 4.5, "Power Off", rotation=90)
 ax2.set_ylabel("Temperature in 40K(K)", color='b')
 ax1.legend(loc="best")
 ax1.margins(0.1)
 fig.tight_layout()
+now = datetime.datetime.now()
+string = "images/" + now.strftime("%Y-%m-%d-%H-%M") + ".png"
+plt.savefig(string)
 
 source.close()
