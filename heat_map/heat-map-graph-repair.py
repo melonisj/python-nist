@@ -75,7 +75,7 @@ with open(filename, "r", newline='') as output:
         row_count = row_count +1      
             
 
-
+#Fix data Points that God messed Up
 temp_4K[36] = temp_4K[28]
 temp_4K[62] = temp_4K_2[62]
 temp_4K[14] = temp_4K_2[14]
@@ -85,12 +85,18 @@ temp_4K[47] = temp_4K_4[47]
 temp_40K[62] = temp_40K_2[62]
 temp_40K[14] = temp_40K_2[14]
 temp_40K[31] = temp_40K_2[31]
-#temp_40K[47] = temp_40K_4[47]
-#temp_40K[46] = temp_40K_2[46]
+
 
 #temp_40K = temp_40K_2
 #power_4K = power_4K_2
 #power_40K = power_40K_2
+
+#Fix Labels that got messed up
+power_4K[62] = power_4K_2[62]
+power_4K[14] = power_4K_2[14]
+power_4K[36] = power_4K_2[36]
+power_4K[31] = power_4K_2[39]
+power_4K[47] = power_4K_2[39]
 
 
 
